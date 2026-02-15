@@ -20,6 +20,29 @@ cd ouraclaw
 bun install
 ```
 
+## Make it executable
+
+```bash
+# Register as a global command
+bun link
+```
+
+Now you can run `ouraclaw` from anywhere:
+
+```bash
+ouraclaw score
+ouraclaw sleep --start 2025-02-01 --end 2025-02-15
+```
+
+Alternatively, link it manually:
+
+```bash
+chmod +x src/cli.ts
+ln -s "$(pwd)/src/cli.ts" ~/.local/bin/ouraclaw
+```
+
+Make sure `~/.local/bin` is in your `PATH`.
+
 ## Setup
 
 1. Register an API application at https://cloud.ouraring.com/oauth/applications
@@ -34,7 +57,7 @@ CLIENT_SECRET=your_client_secret
 4. Authenticate:
 
 ```bash
-bun src/cli.ts auth
+ouraclaw auth
 ```
 
 This opens a browser window. Log in to Oura, grant access, and tokens are saved to `.env` automatically.
@@ -43,19 +66,19 @@ This opens a browser window. Log in to Oura, grant access, and tokens are saved 
 
 ```bash
 # Last night's sleep score
-bun src/cli.ts score
+ouraclaw score
 
 # Sleep scores for a date range
-bun src/cli.ts score --start 2025-02-01 --end 2025-02-15
+ouraclaw score --start 2025-02-01 --end 2025-02-15
 
 # Detailed sleep data (stages, HR, HRV, bedtimes)
-bun src/cli.ts sleep
+ouraclaw sleep
 
 # With date range
-bun src/cli.ts sleep --start 2025-02-01 --end 2025-02-15
+ouraclaw sleep --start 2025-02-01 --end 2025-02-15
 
 # Pipe to jq
-bun src/cli.ts score | jq '.data[0].score'
+ouraclaw score | jq '.data[0].score'
 ```
 
 ### Commands
@@ -78,4 +101,3 @@ Defaults to last night when no dates are provided.
 ## Token refresh
 
 Access tokens expire after ~24 hours. The CLI automatically refreshes them on 401 responses using the stored refresh token -- no manual re-auth needed.
-# ouraclaw

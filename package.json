@@ -1,0 +1,16 @@
+{
+  "name": "ouraclaw",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "ouraclaw": "src/cli.ts"
+  },
+  "scripts": {
+    "test": "bun test --coverage",
+    "typecheck": "bun x tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.7.0"
+  }
+}
