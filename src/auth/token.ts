@@ -1,3 +1,5 @@
+import { mkdirSync } from "fs";
+import { dirname } from "path";
 import { getEnvPath, TOKEN_ENDPOINT, getClientId, getClientSecret } from "../config";
 
 export interface Tokens {
@@ -21,6 +23,7 @@ export function readTokens(): Tokens {
 
 export async function writeTokens(accessToken: string, refreshToken: string): Promise<void> {
   const envPath = getEnvPath();
+  mkdirSync(dirname(envPath), { recursive: true });
   const file = Bun.file(envPath);
   const exists = await file.exists();
   let content = exists ? await file.text() : "";

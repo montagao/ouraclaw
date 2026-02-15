@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "bun:test";
-import { loadEnvVar, getClientId, getClientSecret, API_BASE, REDIRECT_URI, SCOPES } from "../src/config";
+import { loadEnvVar, loadConfigEnv, getClientId, getClientSecret, API_BASE, REDIRECT_URI, SCOPES } from "../src/config";
 
 describe("config", () => {
   describe("constants", () => {
@@ -72,6 +72,60 @@ describe("config", () => {
     it("throws when CLIENT_SECRET is missing", () => {
       delete process.env.CLIENT_SECRET;
       expect(() => getClientSecret()).toThrow("Missing environment variable: CLIENT_SECRET");
+    });
+  });
+
+  describe("loadConfigEnv", () => {
+    const originalEnv = { ...process.env };
+
+    afterEach(async () => {
+      process.env = { ...originalEnv };
+      if (process.env.OURACLAW_ENV_PATH) {
+        try {
+          const { unlink } = await import("fs/promises");
+          await unlink(process.env.OURACLAW_ENV_PATH);
+        } catch {
+          // file may not exist
+        }
+      }
+    });
+
+    it("loads env vars from config file", async () => {
+      const tmpPath = `/tmp/ouraclaw-test-config-${Date.now()}`;
+      process.env.OURACLAW_ENV_PATH = tmpPath;
+      await Bun.write(tmpPath, "MY_TEST_KEY=my_test_value\n");
+      delete process.env.MY_TEST_KEY;
+
+      await loadConfigEnv();
+
+      expect(String(process.env.MY_TEST_KEY)).toBe("my_test_value");
+    });
+
+    it("does not overwrite existing env vars", async () => {
+      const tmpPath = `/tmp/ouraclaw-test-config-nooverwrite-${Date.now()}`;
+      process.env.OURACLAW_ENV_PATH = tmpPath;
+      await Bun.write(tmpPath, "EXISTING_VAR=from_file\n");
+      process.env.EXISTING_VAR = "from_shell";
+
+      await loadConfigEnv();
+
+      expect(process.env.EXISTING_VAR).toBe("from_shell");
+    });
+
+    it("handles missing config file gracefully", async () => {
+      process.env.OURACLAW_ENV_PATH = `/tmp/ouraclaw-nonexistent-${Date.now()}`;
+      await loadConfigEnv(); // should not throw
+    });
+
+    it("skips comments and blank lines", async () => {
+      const tmpPath = `/tmp/ouraclaw-test-config-comments-${Date.now()}`;
+      process.env.OURACLAW_ENV_PATH = tmpPath;
+      await Bun.write(tmpPath, "# this is a comment\n\nCOMMENT_TEST=works\n");
+      delete process.env.COMMENT_TEST;
+
+      await loadConfigEnv();
+
+      expect(String(process.env.COMMENT_TEST)).toBe("works");
     });
   });
 });

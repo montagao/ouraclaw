@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 
+import { loadConfigEnv } from "./config";
 import { runOAuthFlow } from "./auth/oauth";
 import { fetchDailySleep } from "./api/daily-sleep";
 import { fetchSleep } from "./api/sleep";
@@ -44,6 +45,7 @@ Options:
 `;
 
 export async function run(argv: string[]): Promise<void> {
+  await loadConfigEnv();
   const { command, start, end } = parseArgs(argv);
 
   switch (command) {

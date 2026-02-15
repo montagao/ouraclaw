@@ -47,11 +47,14 @@ Make sure `~/.local/bin` is in your `PATH`.
 
 1. Register an API application at https://cloud.ouraring.com/oauth/applications
 2. Set the redirect URI to `http://localhost:3001`
-3. Create a `.env` file in the project root:
+3. Create the config file at `~/.config/ouraclaw/.env`:
 
-```
+```bash
+mkdir -p ~/.config/ouraclaw
+cat > ~/.config/ouraclaw/.env << 'EOF'
 CLIENT_ID=your_client_id
 CLIENT_SECRET=your_client_secret
+EOF
 ```
 
 4. Authenticate:
